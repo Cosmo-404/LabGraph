@@ -7,31 +7,43 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <style>
   :root {
-    --bg: #0f1115;
-    --panel: #171a21;
-    --panel-2: #1e222b;
-    --border: #2a2f3a;
-    --text: #e6e8ec;
-    --muted: #8b93a3;
-    --accent: #3ddc84;
-    --accent-dim: #2a9d5f;
-    --danger: #ff6b6b;
-    --radius: 10px;
+    --bg: #000000;              /* AMOLED black */
+    --glass: rgba(10, 10, 10, 0.75);
+    --field: #0F0F0F;
+    --border: #333333;
+    --text: #F2F2F2;
+    --muted: #8A8A8A;
+    --accent: #00E05A;          /* terminal green — swap to #0078D7 for Windows blue */
+    --accent-hover: #33FF85;
+    --danger: #FF3B3B;
   }
-  * { box-sizing: border-box; }
+
+  /* ---------- Global: perfectly rectangular everything ---------- */
+  *, *::before, *::after {
+    box-sizing: border-box;
+    border-radius: 0 !important;
+  }
   html, body { margin: 0; height: 100%; }
   body {
     background: var(--bg);
     color: var(--text);
-    font: 14px/1.45 "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+    font: 14px/1.45 "Segoe UI", "Segoe UI Variable", system-ui, -apple-system, sans-serif;
     display: grid;
     grid-template-columns: 360px 1fr;
     min-height: 100vh;
   }
 
-  /* ---------- Sidebar (data entry) ---------- */
+  /* Flat, Windows-style scrollbars */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: #000; }
+  ::-webkit-scrollbar-thumb { background: #2B2B2B; border: 2px solid #000; }
+  ::-webkit-scrollbar-thumb:hover { background: #444; }
+
+  /* ---------- Sidebar (data entry) — dark glass ---------- */
   aside {
-    background: var(--panel);
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
     border-right: 1px solid var(--border);
     padding: 22px 20px 28px;
     overflow-y: auto;
@@ -39,19 +51,19 @@
   }
   .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
   .brand-logo {
-    width: 30px; height: 30px; border-radius: 7px;
+    width: 30px; height: 30px;
     background:
       linear-gradient(var(--accent) 1px, transparent 1px) 0 0 / 6px 6px,
       linear-gradient(90deg, var(--accent) 1px, transparent 1px) 0 0 / 6px 6px,
-      #0b2a19;
-    border: 1px solid var(--accent-dim);
+      #001a0b;
+    border: 1px solid var(--accent);
   }
-  .brand h1 { font-size: 19px; margin: 0; letter-spacing: .3px; }
+  .brand h1 { font-size: 20px; font-weight: 300; margin: 0; letter-spacing: .5px; }
   .tagline { color: var(--muted); font-size: 12px; margin: 0 0 18px; }
 
   .section-title {
-    font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px;
-    color: var(--muted); margin: 20px 0 10px;
+    font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--muted); margin: 22px 0 10px;
     display: flex; align-items: center; gap: 8px;
   }
   .section-title::after { content: ""; flex: 1; height: 1px; background: var(--border); }
@@ -61,28 +73,35 @@
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .row-3 { display: grid; grid-template-columns: 1.4fr 1fr 0.7fr; gap: 8px; }
 
+  /* ---------- Inputs: flat, solid, thin sharp border ---------- */
   input[type="text"], select, textarea {
     width: 100%;
-    background: var(--panel-2);
+    background: var(--field);
     border: 1px solid var(--border);
     color: var(--text);
-    border-radius: 7px;
     padding: 8px 10px;
     font: inherit;
     outline: none;
-    transition: border-color .15s, box-shadow .15s;
+    box-shadow: none;
+    transition: none;
   }
+  input[type="text"]:hover, select:hover, textarea:hover { border-color: #555555; }
+
+  /* Windows 10 focus: instant, hard accent border — no glow */
   input[type="text"]:focus, select:focus, textarea:focus {
-    border-color: var(--accent-dim);
-    box-shadow: 0 0 0 3px rgba(61, 220, 132, .12);
+    border-color: var(--accent);
+    box-shadow: inset 0 0 0 1px var(--accent);
+    outline: none;
   }
-  select { cursor: pointer; appearance: none;
+
+  select { cursor: pointer; appearance: none; -webkit-appearance: none;
     background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%),
                       linear-gradient(135deg, var(--muted) 50%, transparent 50%);
     background-position: calc(100% - 14px) 50%, calc(100% - 9px) 50%;
     background-size: 5px 5px; background-repeat: no-repeat; padding-right: 26px; }
+  select option { background: var(--field); color: var(--text); }
   textarea {
-    font-family: "JetBrains Mono", "Consolas", monospace;
+    font-family: "Cascadia Mono", "Consolas", monospace;
     font-size: 13px; resize: vertical; min-height: 170px;
   }
   .hint { font-size: 11px; color: var(--muted); margin-top: 4px; }
@@ -90,22 +109,83 @@
   .check { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text); cursor: pointer; margin: 6px 0; }
   .check input { accent-color: var(--accent); width: 15px; height: 15px; }
 
+  /* ---------- Range Sliders: Windows 10 Metro flat track & square thumb ---------- */
+  .slider-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin: 0 0 6px;
+  }
+  .slider-header label { margin: 0; }
+  .slider-val {
+    font-family: "Cascadia Mono", "Consolas", monospace;
+    font-size: 11.5px;
+    color: var(--accent);
+    background: var(--field);
+    border: 1px solid var(--border);
+    padding: 1px 6px;
+  }
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    background: var(--field);
+    border: 1px solid var(--border);
+    outline: none;
+    margin: 6px 0 4px;
+    cursor: pointer;
+  }
+  input[type="range"]:hover { border-color: #555555; }
+  input[type="range"]:focus { border-color: var(--accent); }
+  input[type="range"]::-webkit-slider-runnable-track {
+    height: 6px;
+    background: transparent;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 18px;
+    background: var(--accent);
+    border: 1px solid #000000;
+    margin-top: -7px;
+    cursor: ew-resize;
+  }
+  input[type="range"]::-webkit-slider-thumb:hover { background: var(--accent-hover); }
+  input[type="range"]::-webkit-slider-thumb:active { background: #00B347; }
+  input[type="range"]::-moz-range-track {
+    height: 6px;
+    background: var(--field);
+    border: 1px solid var(--border);
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 14px;
+    height: 18px;
+    background: var(--accent);
+    border: 1px solid #000000;
+    cursor: ew-resize;
+  }
+  input[type="range"]::-moz-range-thumb:hover { background: var(--accent-hover); }
+
+  /* ---------- Buttons: flat Metro tiles ---------- */
   .btn {
     display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-    width: 100%; padding: 10px 14px; border-radius: 8px;
-    font-family: inherit; font-size: 14px; font-weight: 600; line-height: 1; cursor: pointer; border: 1px solid transparent;
-    transition: transform .05s, background .15s, border-color .15s;
+    width: 100%; padding: 11px 14px;
+    font-family: inherit; font-size: 14px; font-weight: 600; line-height: 1; cursor: pointer;
+    border: 2px solid transparent;
+    transition: none;
   }
-  .btn:active { transform: translateY(1px); }
-  .btn-primary { background: var(--accent); color: #06210f; }
-  .btn-primary:hover { background: #5be79a; }
-  .btn-ghost { background: transparent; color: var(--text); border-color: var(--border); }
-  .btn-ghost:hover { border-color: var(--accent-dim); }
+  .btn:focus-visible { outline: 2px solid var(--text); outline-offset: 1px; }
+  .btn-primary { background: var(--accent); color: #000; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-primary:active { background: #00B347; }
+  .btn-ghost { background: var(--field); color: var(--text); border-color: var(--border); }
+  .btn-ghost:hover { border-color: #777777; }
+  .btn-ghost:active { background: #222222; }
   .actions { display: grid; gap: 8px; margin-top: 18px; }
 
   .error {
-    display: none; margin-top: 12px; padding: 9px 11px; border-radius: 7px;
-    background: rgba(255, 107, 107, .1); border: 1px solid rgba(255, 107, 107, .35);
+    display: none; margin-top: 12px; padding: 9px 11px;
+    background: #140000; border: 1px solid #551111; border-left: 3px solid var(--danger);
     color: var(--danger); font-size: 12.5px;
   }
   .error.show { display: block; }
@@ -115,20 +195,41 @@
     padding: 24px;
     display: flex; flex-direction: column; gap: 14px;
     min-width: 0; max-height: 100vh; overflow: auto;
+    background: var(--bg);
   }
   .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-  .toolbar .meta { color: var(--muted); font-size: 12.5px; }
+  .toolbar .meta { color: var(--muted); font-size: 12.5px; font-family: "Cascadia Mono", Consolas, monospace; }
   .toolbar .btn { width: auto; }
 
+  /* Printable lab-record sheet: stays pure white */
   .paper {
     background: #ffffff;
-    border-radius: 6px;
     padding: 14px;
-    box-shadow: 0 10px 40px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.04);
-    flex: 1; min-height: 520px;
+    border: 1px solid var(--border);
+    box-shadow: none;
+    flex: 0 0 auto;
+    width: 100%;
+    height: 600px;
     position: relative;
   }
-  .paper canvas { display: block; }
+  .paper canvas { display: block; background: #ffffff; }
+
+  /* Interactive, draggable lab-record scale declaration */
+  .scale-box {
+    position: absolute; top: 0; left: 0; z-index: 5;
+    padding: 6px 9px;
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid #111111;
+    color: #111111;
+    font: 600 13px/1.35 "Segoe UI", Arial, sans-serif;
+    white-space: nowrap;
+    cursor: grab;
+    user-select: none; -webkit-user-select: none;
+  }
+  .scale-box[hidden] { display: none; }
+  .scale-box:hover { background: rgba(255, 255, 255, 0.95); }
+  .scale-box.dragging { background: rgba(255, 255, 255, 0.97); cursor: grabbing; }
+  body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select: none !important; }
 
   @media (max-width: 900px) {
     body { grid-template-columns: 1fr; }
@@ -144,27 +245,27 @@
     <div class="brand-logo"></div>
     <h1>LabGrapher</h1>
   </div>
-  <p class="tagline">Engineering physics lab record plotter</p>
+  <p class="tagline"></p>
 
   <div class="section-title">Graph</div>
   <div class="field">
     <label for="title">Graph Title</label>
-    <input type="text" id="title" value="V–I Characteristics of a Resistor" />
+    <input type="text" id="title" autocomplete="off" />
   </div>
 
   <div class="section-title">X-Axis</div>
   <div class="row-3">
     <div class="field">
       <label for="xLabel">Label</label>
-      <input type="text" id="xLabel" value="Voltage" />
+      <input type="text" id="xLabel" autocomplete="off" />
     </div>
     <div class="field">
       <label for="xPrefix">Unit Prefix</label>
-      <select id="xPrefix"></select>
+      <select id="xPrefix" autocomplete="off"></select>
     </div>
     <div class="field">
       <label for="xUnit">Unit</label>
-      <input type="text" id="xUnit" value="V" />
+      <input type="text" id="xUnit" autocomplete="off" />
     </div>
   </div>
 
@@ -172,15 +273,15 @@
   <div class="row-3">
     <div class="field">
       <label for="yLabel">Label</label>
-      <input type="text" id="yLabel" value="Current" />
+      <input type="text" id="yLabel" autocomplete="off" />
     </div>
     <div class="field">
       <label for="yPrefix">Unit Prefix</label>
-      <select id="yPrefix"></select>
+      <select id="yPrefix" autocomplete="off"></select>
     </div>
     <div class="field">
       <label for="yUnit">Unit</label>
-      <input type="text" id="yUnit" value="A" />
+      <input type="text" id="yUnit" autocomplete="off" />
     </div>
   </div>
 
@@ -188,31 +289,11 @@
   <div class="row">
     <div class="field">
       <label for="xData">X values</label>
-      <textarea id="xData" spellcheck="false">0
-1
-2
-3
-4
-5
-6
-7
-8
-9
-10</textarea>
+      <textarea id="xData" spellcheck="false" autocomplete="off"></textarea>
     </div>
     <div class="field">
       <label for="yData">Y values</label>
-      <textarea id="yData" spellcheck="false">0.1
-2.1
-3.9
-6.2
-8.0
-9.9
-12.1
-14.0
-15.8
-18.1
-20.0</textarea>
+      <textarea id="yData" spellcheck="false" autocomplete="off"></textarea>
     </div>
   </div>
   <div class="hint">One value per line (commas, spaces, tabs and scientific notation like 4.7e-3 also work). Enter values in the selected prefix units.</div>
@@ -220,10 +301,26 @@
   <div class="section-title">Options</div>
   <label class="check"><input type="checkbox" id="fromOrigin" checked /> Start both axes at zero</label>
 
+  <div class="section-title">Canvas Dimensions</div>
+  <div class="field">
+    <div class="slider-header">
+      <label for="canvasWidth">Canvas Width</label>
+      <span class="slider-val" id="canvasWidthVal">100%</span>
+    </div>
+    <input type="range" id="canvasWidth" min="35" max="100" step="1" value="100" autocomplete="off" />
+  </div>
+  <div class="field">
+    <div class="slider-header">
+      <label for="canvasHeight">Canvas Height</label>
+      <span class="slider-val" id="canvasHeightVal">600px</span>
+    </div>
+    <input type="range" id="canvasHeight" min="320" max="1200" step="10" value="600" autocomplete="off" />
+  </div>
+
   <div class="error" id="error"></div>
 
   <div class="actions">
-    <button class="btn btn-primary" id="plotBtn">Plot Graph</button>
+    <button class="btn btn-primary" id="plotBtn">Generate Graph</button>
     <button class="btn btn-ghost" id="downloadBtn">⬇ Download Graph (PNG)</button>
   </div>
 </aside>
@@ -233,8 +330,9 @@
   <div class="toolbar">
     <div class="meta" id="meta">—</div>
   </div>
-  <div class="paper">
+  <div class="paper" id="paper">
     <canvas id="chart"></canvas>
+    <div class="scale-box" id="scaleBox" title="Drag to reposition" hidden></div>
   </div>
 </main>
 
@@ -269,16 +367,22 @@
     xLabel: $('xLabel'), xPrefix: $('xPrefix'), xUnit: $('xUnit'), xData: $('xData'),
     yLabel: $('yLabel'), yPrefix: $('yPrefix'), yUnit: $('yUnit'), yData: $('yData'),
     fromOrigin: $('fromOrigin'),
+    canvasWidth: $('canvasWidth'), canvasWidthVal: $('canvasWidthVal'),
+    canvasHeight: $('canvasHeight'), canvasHeightVal: $('canvasHeightVal'),
+    paper: $('paper'),
     error: $('error'), meta: $('meta'),
     plotBtn: $('plotBtn'), downloadBtn: $('downloadBtn'),
   };
 
-  // Populate prefix dropdowns (X defaults to base V, Y defaults to mA).
+  // Populate prefix dropdowns; both start on the neutral "Base Unit".
   for (const sel of [els.xPrefix, els.yPrefix]) {
     PREFIXES.forEach((p, i) => sel.add(new Option(p.name, String(i))));
   }
-  els.xPrefix.value = String(PREFIXES.findIndex(p => p.factor === 1));
-  els.yPrefix.value = String(PREFIXES.findIndex(p => p.factor === 1e-3));
+  const BASE_INDEX = String(PREFIXES.findIndex(p => p.factor === 1));
+  els.xPrefix.value = els.yPrefix.value = BASE_INDEX;
+
+  // True once the user has generated a graph; until then the canvas is blank paper.
+  let plotted = false;
 
   /* ------------------------------------------------------------------
    * Helpers
@@ -373,92 +477,114 @@
     },
   };
 
-  // 2) Lab-record scale box, top-right corner of the plotting area (baked into canvas).
-  const scaleLabelPlugin = {
-    id: 'scaleLabel',
-    afterDraw(chart) {
-      const { ctx, chartArea: a } = chart;
-      if (!a) return;
-      const { x, y } = scaleParts(chart);
-      const oneLine = `Scale: ${x}, ${y}`;
+  // 2) Lab-record scale box — an interactive HTML overlay (NOT drawn on the canvas).
+  //    This hook only refreshes its text/position after Chart.js lays out the axes
+  //    (tick spacing can change on resize).
+  const scaleBox = $('scaleBox');
+  let boxPos = null; // user-dragged position relative to the canvas (CSS px); null = auto top-right
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
-      ctx.save();
-      const fontPx = Math.max(11, Math.min(14, Math.round((a.right - a.left) / 60)));
-      ctx.font = `600 ${fontPx}px "Segoe UI", Arial, sans-serif`;
-      const pad = 8, lh = fontPx * 1.35;
-      const maxW = (a.right - a.left) * 0.75;
+  function canvasRect() {
+    const c = scaleBox.parentElement.querySelector('canvas');
+    return { left: c.offsetLeft, top: c.offsetTop, width: c.clientWidth, height: c.clientHeight };
+  }
 
-      let lines = [oneLine];
-      if (ctx.measureText(oneLine).width > maxW) lines = ['Scale:', x, y];
+  function placeScaleBox(ch) {
+    const a = ch.chartArea;
+    if (!a || scaleBox.hidden) return;
+    const c = canvasRect();
+    const w = scaleBox.offsetWidth, h = scaleBox.offsetHeight;
+    const rx = boxPos ? boxPos.x : a.right - w - 8;
+    const ry = boxPos ? boxPos.y : a.top + 8;
+    scaleBox.style.left = `${c.left + clamp(rx, 0, Math.max(0, c.width - w))}px`;
+    scaleBox.style.top = `${c.top + clamp(ry, 0, Math.max(0, c.height - h))}px`;
+  }
 
-      const w = Math.max(...lines.map(l => ctx.measureText(l).width)) + pad * 2;
-      const h = lines.length * lh + pad * 2 - (lh - fontPx);
-      const bx = a.right - w - 8, by = a.top + 8;
+  function setScaleLines(lines) {
+    scaleBox.replaceChildren(...lines.map((t) => {
+      const d = document.createElement('div');
+      d.textContent = t;
+      return d;
+    }));
+  }
 
-      ctx.fillStyle = 'rgba(255,255,255,0.95)';
-      ctx.strokeStyle = '#111';
-      ctx.lineWidth = 1.2;
-      ctx.fillRect(bx, by, w, h);
-      ctx.strokeRect(bx + 0.5, by + 0.5, w - 1, h - 1);
+  function refreshScaleBox(ch) {
+    if (!plotted || !ch.chartArea) { scaleBox.hidden = true; return; }
+    const { x, y } = scaleParts(ch);
+    const oneLine = `Scale: ${x}, ${y}`;
+    scaleBox.hidden = false;
+    setScaleLines([oneLine]);
+    // Fall back to a stacked layout if the single line would hog the plot.
+    if (scaleBox.offsetWidth > (ch.chartArea.right - ch.chartArea.left) * 0.75) {
+      setScaleLines(['Scale:', x, y]);
+    }
+    placeScaleBox(ch);
+    els.meta.textContent = `${ch.data.datasets[0].data.length} points · ${x} · ${y}`;
+  }
 
-      ctx.fillStyle = '#111';
-      ctx.textBaseline = 'top';
-      ctx.textAlign = 'left';
-      lines.forEach((l, i) => ctx.fillText(l, bx + pad, by + pad + i * lh));
-      ctx.restore();
-    },
+  const scaleBoxPlugin = {
+    id: 'scaleBox',
+    afterLayout(ch) { refreshScaleBox(ch); },
   };
 
   /* ------------------------------------------------------------------
-   * Chart setup
+   * Chart setup — config factory shared by the live chart and PNG export
    * ------------------------------------------------------------------ */
   const axisCommon = () => ({
     type: 'linear',
+    min: 0, max: 10,          // blank-paper range until data is generated
     grid: { color: GRID.major, lineWidth: 1, drawTicks: true, tickLength: 6, tickColor: GRID.border },
     border: { display: true, color: GRID.border, width: 2 },
     ticks: { color: GRID.tickText, font: { size: 12 }, padding: 4 },
-    title: { display: true, color: '#111', font: { size: 14, weight: '600' } },
+    title: { display: false, text: '', color: '#111', font: { size: 14, weight: '600' } },
   });
 
-  const chart = new Chart($('chart'), {
-    type: 'scatter',
-    data: {
-      datasets: [
-        {
-          label: 'Experimental data',
-          data: [],
-          showLine: true,
-          tension: 0.4,
-          fill: false,
-          backgroundColor: '#0b1f8f',
-          borderColor: '#000',
-          borderWidth: 1.5,
-          pointRadius: 4.5,
-          pointHoverRadius: 6,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      animation: false,
-      layout: { padding: { top: 6, right: 16, bottom: 6, left: 6 } },
-      scales: { x: axisCommon(), y: axisCommon() },
-      plugins: {
-        title: { display: true, text: '', color: '#111', font: { size: 18, weight: '700' }, padding: { top: 4, bottom: 12 } },
-        legend: {
-          position: 'bottom',
-          labels: { color: '#111', usePointStyle: true, boxWidth: 8, font: { size: 12 } },
-        },
-        tooltip: {
-          callbacks: {
-            label: (ctx) => `(${clean(ctx.parsed.x, 6)}, ${clean(ctx.parsed.y, 6)})`,
+  function buildChartConfig() {
+    return {
+      type: 'scatter',
+      data: {
+        datasets: [
+          {
+            label: 'Experimental data',
+            data: [],
+            showLine: true,
+            tension: 0.4,
+            fill: false,
+            backgroundColor: '#0b1f8f',
+            borderColor: '#000',
+            borderWidth: 1.5,
+            pointRadius: 4.5,
+            pointHoverRadius: 6,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: false,
+        layout: { padding: { top: 6, right: 16, bottom: 6, left: 6 } },
+        scales: { x: axisCommon(), y: axisCommon() },
+        plugins: {
+          title: { display: false, text: '', color: '#111', font: { size: 18, weight: '700' }, padding: { top: 4, bottom: 12 } },
+          legend: {
+            display: false,
+            position: 'bottom',
+            labels: { color: '#111', usePointStyle: true, boxWidth: 8, font: { size: 12 } },
+          },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => `(${clean(ctx.parsed.x, 6)}, ${clean(ctx.parsed.y, 6)})`,
+            },
           },
         },
       },
-    },
-    plugins: [graphPaperPlugin, scaleLabelPlugin],
-  });
+      plugins: [graphPaperPlugin],
+    };
+  }
+
+  const liveConfig = buildChartConfig();
+  liveConfig.plugins.push(scaleBoxPlugin); // HTML overlay only applies to the live chart
+  const chart = new Chart($('chart'), liveConfig);
 
   /* ------------------------------------------------------------------
    * Main pipeline: parse → plot
@@ -468,7 +594,13 @@
     els.error.classList.toggle('show', Boolean(msg));
   }
 
-  function update() {
+  function generate() {
+    // Basic validation: both reading boxes must contain something.
+    if (!els.xData.value.trim() || !els.yData.value.trim()) {
+      alert('Please enter data');
+      return;
+    }
+
     const xp = prefixOf(els.xPrefix), yp = prefixOf(els.yPrefix);
     const xUnit = els.xUnit.value.trim(), yUnit = els.yUnit.value.trim();
 
@@ -484,12 +616,11 @@
       err = 'Enter at least two (X, Y) pairs.';
     }
     showError(err);
+    if (err) return;
 
     // Displayed (prefixed) values — what the user typed. Sorted by X so the
     // connecting curve progresses left-to-right instead of looping back.
-    const n = Math.min(px.values.length, py.values.length);
-    const points = [];
-    for (let i = 0; i < n; i++) points.push({ x: px.values[i], y: py.values[i] });
+    const points = px.values.map((x, i) => ({ x, y: py.values[i] }));
     points.sort((a, b) => a.x - b.x);
 
     // Chart configuration
@@ -498,30 +629,77 @@
     o.plugins.title.display = Boolean(o.plugins.title.text);
     o.scales.x.title.text = axisTitle(els.xLabel.value.trim() || 'X', xp, xUnit);
     o.scales.y.title.text = axisTitle(els.yLabel.value.trim() || 'Y', yp, yUnit);
+    o.scales.x.title.display = o.scales.y.title.display = true;
     o.scales.x.beginAtZero = o.scales.y.beginAtZero = els.fromOrigin.checked;
+    // Release the fixed blank-paper range so Chart.js auto-fits the data.
+    for (const k of ['x', 'y']) { o.scales[k].min = undefined; o.scales[k].max = undefined; }
+    o.plugins.legend.display = true;
 
+    plotted = true;
     chart.data.datasets[0].data = points;
-    chart.update();
-
-    const { x, y } = scaleParts(chart);
-    els.meta.textContent = points.length
-      ? `${points.length} points · ${x} · ${y}`
-      : 'No data';
+    chart.update(); // scaleBoxPlugin refreshes the HTML scale box + toolbar meta
   }
 
   /* ------------------------------------------------------------------
-   * PNG export (high-DPI, white background, scale text baked in)
+   * PNG export — fixed 2400×1800 (4:3, 300 DPI at 8"×6"), independent of the
+   * live canvas size / screen orientation. A temporary off-screen Chart.js
+   * instance is built from the same config factory, then destroyed.
    * ------------------------------------------------------------------ */
-  function downloadPNG() {
-    const prevDPR = chart.options.devicePixelRatio;
-    chart.options.devicePixelRatio = 3; // print-ready resolution
-    chart.resize();
-    chart.update('none');
-    const url = chart.toBase64Image('image/png', 1);
-    chart.options.devicePixelRatio = prevDPR;
-    chart.resize();
-    chart.update('none');
+  const EXPORT = { width: 2400, height: 1800, ratio: 3 }; // 800×600 logical layout @3×
 
+  /** Scale box position as fractions of the live canvas, or null if never dragged. */
+  function scaleBoxRelativePos() {
+    if (!boxPos || scaleBox.hidden) return null;
+    const c = canvasRect();
+    return {
+      fx: (scaleBox.offsetLeft - c.left) / c.width,
+      fy: (scaleBox.offsetTop - c.top) / c.height,
+    };
+  }
+
+  /** Plugin (export-only) that paints the scale declaration onto the off-screen canvas. */
+  function exportScalePlugin(rel) {
+    return {
+      id: 'exportScale',
+      afterDraw(ch) {
+        const a = ch.chartArea;
+        if (!plotted || !a) return;
+        const { ctx } = ch;
+        const { x, y } = scaleParts(ch);   // steps from the EXPORT chart's own ticks
+        const cs = getComputedStyle(scaleBox);
+        const fontPx = parseFloat(cs.fontSize) || 13;
+        const padX = 9, padY = 6, border = 1, lh = fontPx * 1.35;
+
+        ctx.save();
+        ctx.font = `${cs.fontWeight} ${fontPx}px ${cs.fontFamily}`;
+        const oneLine = `Scale: ${x}, ${y}`;
+        const boxW = (t) => ctx.measureText(t).width + 2 * (padX + border);
+        let lines = [oneLine];
+        if (boxW(oneLine) > (a.right - a.left) * 0.75) lines = ['Scale:', x, y];
+
+        const w = Math.max(...lines.map(boxW));
+        const h = lines.length * lh + 2 * (padY + border);
+        let bx = rel ? rel.fx * ch.width : a.right - w - 8;
+        let by = rel ? rel.fy * ch.height : a.top + 8;
+        bx = clamp(bx, 0, Math.max(0, ch.width - w));
+        by = clamp(by, 0, Math.max(0, ch.height - h));
+
+        ctx.fillStyle = 'rgba(255,255,255,0.95)';
+        ctx.fillRect(bx, by, w, h);
+        ctx.strokeStyle = '#111';
+        ctx.lineWidth = border;
+        ctx.strokeRect(bx + 0.5, by + 0.5, w - 1, h - 1);
+
+        ctx.fillStyle = '#111';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        lines.forEach((t, i) => ctx.fillText(t, bx + border + padX, by + border + padY + (i + 0.5) * lh));
+        ctx.restore();
+      },
+    };
+  }
+
+  function triggerDownload(url) {
     const name = (els.title.value.trim() || 'labgrapher-graph')
       .replace(/[^\w\-]+/g, '_').replace(/^_+|_+$/g, '') || 'labgrapher-graph';
     const a = document.createElement('a');
@@ -532,21 +710,116 @@
     a.remove();
   }
 
+  function downloadPNG() {
+    const logicalW = EXPORT.width / EXPORT.ratio;
+    const logicalH = EXPORT.height / EXPORT.ratio;
+
+    // Off-screen host (must be in the DOM for reliable font/layout metrics).
+    const host = document.createElement('div');
+    Object.assign(host.style, {
+      position: 'fixed', left: '-100000px', top: '0',
+      width: `${logicalW}px`, height: `${logicalH}px`,
+      overflow: 'hidden', pointerEvents: 'none',
+    });
+    const canvas = document.createElement('canvas');
+    canvas.width = logicalW;   // Chart.js multiplies by devicePixelRatio → 2400×1800
+    canvas.height = logicalH;
+    host.appendChild(canvas);
+    document.body.appendChild(host);
+
+    // Clone the live chart's config, current view state and data.
+    const cfg = buildChartConfig();
+    const o = cfg.options, live = chart.options;
+    o.responsive = false;
+    o.devicePixelRatio = EXPORT.ratio;
+    o.events = [];
+    o.plugins.tooltip.enabled = false;
+    o.plugins.title.text = live.plugins.title.text;
+    o.plugins.title.display = live.plugins.title.display;
+    o.plugins.legend.display = live.plugins.legend.display;
+    for (const k of ['x', 'y']) {
+      const s = o.scales[k], ls = live.scales[k];
+      s.min = ls.min;
+      s.max = ls.max;
+      s.beginAtZero = ls.beginAtZero;
+      s.title.text = ls.title.text;
+      s.title.display = ls.title.display;
+    }
+    cfg.data.datasets.forEach((ds, i) => {
+      ds.data = chart.data.datasets[i].data.map((p) => ({ x: p.x, y: p.y }));
+    });
+    cfg.plugins.push(exportScalePlugin(scaleBoxRelativePos()));
+
+    let tmp = null;
+    try {
+      tmp = new Chart(canvas, cfg);
+      triggerDownload(tmp.toBase64Image('image/png', 1));
+    } finally {
+      if (tmp) tmp.destroy();   // release Chart.js listeners/references
+      host.remove();            // drop the off-screen canvas
+    }
+  }
+
   /* ------------------------------------------------------------------
-   * Events
+   * Scale box drag-and-drop (constrained to the graph canvas)
    * ------------------------------------------------------------------ */
-  let t = null;
-  const debounced = () => { clearTimeout(t); t = setTimeout(update, 250); };
-  for (const el of [els.title, els.xLabel, els.yLabel, els.xUnit, els.yUnit, els.xData, els.yData]) {
-    el.addEventListener('input', debounced);
+  let drag = null;
+  scaleBox.addEventListener('mousedown', (e) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    drag = { startX: e.clientX, startY: e.clientY, left: scaleBox.offsetLeft, top: scaleBox.offsetTop };
+    scaleBox.classList.add('dragging');
+    document.body.classList.add('is-dragging');
+  });
+  document.addEventListener('mousemove', (e) => {
+    if (!drag) return;
+    const c = canvasRect();
+    boxPos = {
+      x: drag.left + (e.clientX - drag.startX) - c.left,
+      y: drag.top + (e.clientY - drag.startY) - c.top,
+    };
+    placeScaleBox(chart);
+  });
+  document.addEventListener('mouseup', () => {
+    if (!drag) return;
+    drag = null;
+    scaleBox.classList.remove('dragging');
+    document.body.classList.remove('is-dragging');
+  });
+
+  /* ------------------------------------------------------------------
+   * Live Canvas Resizing via Sliders
+   * ------------------------------------------------------------------ */
+  function applyCanvasSize() {
+    const wPct = els.canvasWidth.value;
+    const hPx = els.canvasHeight.value;
+    els.paper.style.width = `${wPct}%`;
+    els.paper.style.height = `${hPx}px`;
+    els.canvasWidthVal.textContent = `${wPct}% (${els.paper.clientWidth}px)`;
+    els.canvasHeightVal.textContent = `${hPx}px`;
+    chart.resize();
   }
-  for (const el of [els.xPrefix, els.yPrefix, els.fromOrigin]) {
-    el.addEventListener('change', update);
-  }
-  els.plotBtn.addEventListener('click', update);
+  els.canvasWidth.addEventListener('input', applyCanvasSize);
+  els.canvasHeight.addEventListener('input', applyCanvasSize);
+  window.addEventListener('resize', () => {
+    els.canvasWidthVal.textContent = `${els.canvasWidth.value}% (${els.paper.clientWidth}px)`;
+  });
+
+  /* ------------------------------------------------------------------
+   * Events — plotting happens ONLY on an explicit "Generate Graph" click.
+   * ------------------------------------------------------------------ */
+  els.plotBtn.addEventListener('click', generate);
   els.downloadBtn.addEventListener('click', downloadPNG);
 
-  update();
+  // Fresh, empty state on every load (also defeats browser form restoration).
+  for (const el of [els.title, els.xLabel, els.yLabel, els.xUnit, els.yUnit, els.xData, els.yData]) {
+    el.value = '';
+  }
+  els.xPrefix.value = els.yPrefix.value = BASE_INDEX;
+  els.canvasWidth.value = '100';
+  els.canvasHeight.value = '600';
+  applyCanvasSize();
+  els.meta.textContent = 'No data — enter readings and click Generate Graph';
 })();
 </script>
 </body>
